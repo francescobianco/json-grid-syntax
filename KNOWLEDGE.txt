@@ -1,0 +1,269 @@
+### **JSON Grid Syntax (JGS): Comprehensive Explanation for Knowledge Base**
+
+JSON Grid Syntax (JGS) is a powerful textual representation designed to transform complex JSON objects into structured, tabular data, such as row-column grids. The syntax provides flexibility for navigating JSON hierarchies, extracting specific fields, and generating organized data outputs. This document describes the complete functionality, including its updated support for advanced operations such as multi-path key-value extraction and column alignment. The purpose of this document is to serve as a foundational reference for teaching the mechanisms of JGS to large language models (LLMs).
+
+---
+
+### **Introduction to JSON Grid Syntax**
+
+JSON Grid Syntax enables users to:
+- Navigate JSON structures using simple yet powerful path expressions.
+- Extract data into rows or columns depending on the use case.
+- Handle complex JSON objects with lists, nested structures, or key-value pairs.
+- Define fallback/default values for missing or null fields.
+
+---
+
+### **Core Components of JGS**
+
+#### **1. Basic Path Navigation**
+
+JGS allows users to navigate JSON objects and arrays using a dot (`.`) notation. Each part of the path represents a key or index within the JSON object or array.
+
+##### Example JSON:
+```json
+{
+  "config": {
+    "theme": "dark",
+    "language": "en"
+  },
+  "meta": {
+    "author": "John Doe",
+    "date": "2024-01-01"
+  }
+}
+```
+
+##### Syntax:
+`config.theme`
+
+##### Result:
+```
+dark
+```
+
+##### Explanation:
+- The path `config.theme` directly accesses the `theme` key inside the `config` object.
+
+---
+
+#### **2. Array Navigation**
+
+Arrays within JSON can be accessed using numerical indices.
+
+##### Example JSON:
+```json
+{
+  "items": [
+    {"name": "item1", "value": 10},
+    {"name": "item2", "value": 20}
+  ]
+}
+```
+
+##### Syntax:
+`items.0.name`
+
+##### Result:
+```
+item1
+```
+
+##### Explanation:
+- The path `items.0.name` accesses the first element (`index 0`) of the `items` array and extracts the `name` field.
+
+---
+
+#### **3. Deep Navigation and Branching with `>`**
+
+To transition into a deeper branch of the JSON structure, the `>` operator is used after defining the path.
+
+##### Syntax:
+`field1.0.field3 > *.name`
+
+##### Explanation:
+- Navigate through the JSON structure from `field1` → `0` → `field3`.
+- Extract the `name` field from all objects in the resulting array.
+
+---
+
+#### **4. Column Separation with `,`**
+
+Fields can be separated by commas (`,`) to extract multiple values as columns.
+
+##### Syntax:
+`*.name, *.surname`
+
+##### Result:
+| Name   | Surname   |
+|--------|-----------|
+| John   | Doe       |
+| Alice  | Smith     |
+
+---
+
+#### **5. Row Separation with `;`**
+
+Fields can be separated by semicolons (`;`) to arrange the results as rows instead of columns.
+
+##### Syntax:
+`*.name; *.surname`
+
+##### Result:
+```
+John
+Alice
+Doe
+Smith
+```
+
+---
+
+#### **6. Default Values with `/`**
+
+If a field is missing or null, a default value can be specified using the `/` operator.
+
+##### Example JSON:
+```json
+{
+  "config": {
+    "theme": "dark",
+    "language": null
+  }
+}
+```
+
+##### Syntax:
+`config.language/default`
+
+##### Result:
+```
+default
+```
+
+##### Explanation:
+- The path `config.language/default` substitutes `default` for null or missing values.
+
+---
+
+### **Advanced Operations**
+
+#### **7. Key-Value Pair Extraction with `#`**
+
+The `#` operator extracts **keys** and **values** from an object and maps them into two adjacent columns. Each key is placed in the first column, and its corresponding value is placed in the second column.
+
+##### Syntax:
+`path > #`
+
+##### Example JSON:
+```json
+{
+  "config": {
+    "theme": "dark",
+    "language": "en"
+  }
+}
+```
+
+##### Result:
+| Key       | Value   |
+|-----------|---------|
+| theme     | dark    |
+| language  | en      |
+
+##### Explanation:
+- The `#` operator at `path` expands all keys and their values into two columns.
+
+---
+
+#### **8. Combining `#` with Column Separation**
+
+When `#` is combined with `,`, the resulting columns are automatically aligned to avoid overlap. Each `#` operation generates two columns.
+
+##### Syntax:
+`config > #, meta.author`
+
+##### Result:
+| Config Key | Config Value | Author   |
+|------------|--------------|----------|
+| theme      | dark         | John Doe |
+| language   | en           |          |
+
+---
+
+#### **9. Multiple `#` Operations**
+
+Multiple `#` operations can be performed on different paths. Each operation occupies two new columns.
+
+##### Syntax:
+`config > #, meta > #`
+
+##### Result:
+| Config Key | Config Value | Meta Key | Meta Value |
+|------------|--------------|----------|------------|
+| theme      | dark         | author   | John Doe   |
+| language   | en           | date     | 2024-01-01 |
+
+##### Explanation:
+- The `config > #` operation expands the `config` object into two columns.
+- The `meta > #` operation expands the `meta` object into two new columns without overlap.
+
+---
+
+### **Comprehensive Examples**
+
+#### **Example 1: Combining Multiple Features**
+```json
+{
+  "data": [
+    {
+      "config": {
+        "theme": "dark",
+        "language": "en"
+      },
+      "meta": {
+        "author": "John Doe",
+        "date": "2024-01-01"
+      }
+    },
+    {
+      "config": {
+        "theme": "light",
+        "language": "fr"
+      },
+      "meta": {
+        "author": "Alice Smith",
+        "date": "2024-02-01"
+      }
+    }
+  ]
+}
+```
+
+**Syntax:**
+`data.*.config > #, data.*.meta > #`
+
+**Result:**
+| Config Key | Config Value | Meta Key | Meta Value |
+|------------|--------------|----------|------------|
+| theme      | dark         | author   | John Doe   |
+| language   | en           | date     | 2024-01-01 |
+| theme      | light        | author   | Alice Smith|
+| language   | fr           | date     | 2024-02-01 |
+
+---
+
+### **Practical Applications of JGS**
+
+1. **Data Transformation:**
+   - Convert JSON APIs into flat, structured data.
+2. **Report Generation:**
+   - Dynamically populate tables from nested JSON objects.
+3. **Interactive Filtering:**
+   - Use JGS strings in spreadsheets or database tools to query and present specific data.
+
+---
+
+### **Knowledge Base Summary**
+
+JSON Grid Syntax (JGS) simplifies the extraction and transformation of JSON data into human-readable grids, suitable for tabular formats. Its versatility supports diverse operations like navigation, key-value extraction, and default handling, making it ideal for spreadsheet integrations, report generators, and interactive tools. The updated `#` operator enhances this functionality by handling key-value pairs effectively.
