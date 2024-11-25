@@ -1,5 +1,5 @@
 
-const extractAsGrid = require('../src/extractAsGrid');
+const extractAsGrid = require('../src/json-grid-syntax');
 
 test('key value expand', () => {
     const inputJson = {

@@ -1,5 +1,5 @@
 
-const extractAsGrid = require('../src/extractAsGrid');
+const extractAsGrid = require('../src/json-grid-syntax');
 
 const inputJson = {
     people: [
@@ -11,9 +11,13 @@ const inputJson = {
                 }
             ]
         }
-    ]
+    ],
+    invoice: {
+        owner: 1,
+        title: "Spare Toys co."
+    }
 }
 
-const outputGrid = extractAsGrid(inputJson, "people.0.parents.0 > #")
+const outputGrid = extractAsGrid(inputJson, "people.0.parents.0 > #, invoice > #")
 
 console.log(outputGrid)

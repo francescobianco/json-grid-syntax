@@ -1,5 +1,5 @@
 
-function extractAsGrid(inputJson, jsonGridSyntax, replacer = null, space = null) {
+function jsonGridSyntax(inputJson, jsonGridSyntax, replacer = null, space = null) {
 
     function parseJson(inputJson, jsonGridSyntax) {
         jsonGridSyntax = jsonGridSyntax.trim();
@@ -16,6 +16,7 @@ function extractAsGrid(inputJson, jsonGridSyntax, replacer = null, space = null)
 
         let branchPrefix = ""
         let selectorGrid = getSelectorGrid(jsonGridSyntax);
+        let columnOffset = 0;
 
         selectorGrid = selectorGrid.map((row, rowIndex) => {
             return row.map((selector, columnIndex) => {
@@ -31,7 +32,8 @@ function extractAsGrid(inputJson, jsonGridSyntax, replacer = null, space = null)
                 }
 
                 if (selector[0] === '#') {
-                    expansionGrid = expandKeyValues(getValueByPath(inputJson, branchPrefix), expansionGrid, columnIndex);
+                    expansionGrid = expandKeyValues(getValueByPath(inputJson, branchPrefix), expansionGrid, columnIndex + columnOffset);
+                    columnOffset++
                     return
                 } else if (selector[0] === '*') {
                     expansionGrid = expandColumn(inputJson, expansionGrid, selector, branchPrefix, columnIndex);
@@ -148,4 +150,4 @@ function extractAsGrid(inputJson, jsonGridSyntax, replacer = null, space = null)
     return parseJson(inputJson, jsonGridSyntax);
 }
 
-module.exports = extractAsGrid;
+module.exports = jsonGridSyntax;
