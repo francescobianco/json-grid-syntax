@@ -34,7 +34,7 @@ function extractAsGrid(inputJson, jsonGridSyntax, replacer = null, space = null)
                     expansionGrid = expandKeyValues(getValueByPath(inputJson, branchPrefix), expansionGrid, columnIndex);
                     return
                 } else if (selector[0] === '*') {
-                    expansionGrid = expandColumn(getValueByPath(inputJson, branchPrefix), expansionGrid, selector, branchPrefix, columnIndex);
+                    expansionGrid = expandColumn(inputJson, expansionGrid, selector, branchPrefix, columnIndex);
                     return
                 }
 
@@ -55,38 +55,41 @@ function extractAsGrid(inputJson, jsonGridSyntax, replacer = null, space = null)
         return typeof inputJson == "string" ? inputJson : JSON.stringify(inputJson, replacer, space);
     }
 
-    function getValueByPath(obj, path) {
-        let keys = path.split('.'); // Dividi il percorso in chiavi
-        let current = obj;
+    function getValueByPath(inputJson, path) {
+        if (!path) {
+            return inputJson;
+        }
+
+        const keys = path.split('.');
+
+        let current = inputJson;
+
         for (let key of keys) {
             if (current === undefined || current === null) {
-                return null; // Se un valore è undefined o null, interrompi
+                return null;
             }
             current = current[key];
         }
+
         return current;
     }
 
     function mergeGrids(grid1, grid2) {
-        if (grid2.length == 1 && grid2[0].length == 0) {
+        if (grid2.length === 1 && grid2[0].length === 0) {
             return grid1;
         }
 
         let mergedGrid = [];
-
-        // Determina il numero massimo di righe
         let maxRows = Math.max(grid1.length, grid2.length);
 
         for (let i = 0; i < maxRows; i++) {
-            let row1 = grid1[i] || []; // Prendi la riga dal grid1 o un array vuoto
-            let row2 = grid2[i] || []; // Prendi la riga dal grid2 o un array vuoto
+            let row1 = grid1[i] || [];
+            let row2 = grid2[i] || [];
             let mergedRow = [];
 
-            // Determina il numero massimo di colonne per questa riga
             let maxCols = Math.max(row1.length, row2.length);
 
             for (let j = 0; j < maxCols; j++) {
-                // Sovrascrivi il valore del grid1 con quello del grid2 se esiste
                 mergedRow[j] = row2[j] !== undefined ? row2[j] : row1[j];
             }
 
@@ -114,8 +117,9 @@ function extractAsGrid(inputJson, jsonGridSyntax, replacer = null, space = null)
 
     function expandColumn(inputJson, expansionGrid, selector, branchPrefix, columnIndex) {
         const prefix = branchPrefix ? branchPrefix + '.' : '';
+        const grid = getValueByPath(inputJson, branchPrefix);
 
-        for (let index in inputJson) {
+        for (let index in grid) {
             const computedSelector = prefix + selector.replace(/\*/g, index);
             if (typeof expansionGrid[index] == "undefined") {
                 expansionGrid[index] = []

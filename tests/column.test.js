@@ -14,3 +14,23 @@ test('column expand', () => {
         ["Karl"]
     ]);
 });
+
+test('column expand on branch', () => {
+    const inputJson = {
+        events: [
+            {
+                people: [
+                    {name: "Santa", surname: "Claus"},
+                    {name: "Karl", surname: "Kaiser"}
+                ]
+            }
+        ]
+    };
+
+    const outputGrid = extractAsGrid(inputJson, "events.0.people > *.surname, *.name")
+
+    expect(outputGrid).toStrictEqual([
+        ["Claus", "Santa"],
+        ["Kaiser", "Karl"]
+    ]);
+});
