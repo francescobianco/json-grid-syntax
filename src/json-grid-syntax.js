@@ -4,6 +4,13 @@ function jsonGridSyntax(inputJson, jsonGridSyntax, replacer = null, space = null
     function parseJson(inputJson, jsonGridSyntax) {
         jsonGridSyntax = jsonGridSyntax.trim();
 
+        let error = jsonGridSyntax.match(/([\w-]*)\s*\.\s*\*\s*\.\s*([\w-]*)/)
+        if (error) {
+            const branch = error[1] || 'branch'
+            const field = error[2] || 'field'
+            throw new Error(`Invalid column expansion, replace with: ${branch} > *.${field}`);
+        }
+
         if ([';', ','].includes(jsonGridSyntax[jsonGridSyntax.length - 1])) {
             jsonGridSyntax = jsonGridSyntax.slice(0, -1).trim();
         }

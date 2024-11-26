@@ -11,5 +11,8 @@ demo-column:
 demo-key-value:
 	@node examples/key-value-demo.js
 
+demo-error:
+	@node examples/error-demo.js
+
 test:
 	@npm run test
