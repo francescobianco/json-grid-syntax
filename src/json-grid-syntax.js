@@ -47,7 +47,7 @@ function jsonGridSyntax(inputJson, jsonGridSyntax, replacer = null, space = null
                             columnIndex + columnOffset,
                             rowIndex + rowOffset,
                         );
-                        maxHeight = Math.max(maxHeight, expansionGrid.length);
+                        maxHeight = Math.max(maxHeight, expansionGrid.length - rowIndex - 1);
                         columnOffset++
                         return
                     } else if (selector[0] === '*') {
@@ -59,7 +59,7 @@ function jsonGridSyntax(inputJson, jsonGridSyntax, replacer = null, space = null
                             columnIndex + columnOffset,
                             rowIndex + rowOffset
                         );
-                        maxHeight = Math.max(maxHeight, expansionGrid.length - rowIndex);
+                        maxHeight = Math.max(maxHeight, expansionGrid.length - rowIndex - 1);
                         return
                     }
 
@@ -67,7 +67,7 @@ function jsonGridSyntax(inputJson, jsonGridSyntax, replacer = null, space = null
                 }
             );
 
-            rowOffset = maxHeight - 1;
+            rowOffset = maxHeight;
             columnOffset = 0;
 
             return row;

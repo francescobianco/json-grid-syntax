@@ -12,6 +12,6 @@ const inputJson = {
     ]
 }
 
-const outputGrid = extractAsGrid(inputJson, "events.0.people > *.surname, *.name")
+const outputGrid = extractAsGrid(inputJson, "events.0.people > *")
 
 console.log(outputGrid)

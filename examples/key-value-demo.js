@@ -7,7 +7,7 @@ const inputJson = {
             parents: [
                 {
                     n: "A",
-                    //surname: "Claus",
+                    e: "C",
                     //age: 99
                 }
             ]
