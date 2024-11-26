@@ -6,18 +6,24 @@ const inputJson = {
         {
             parents: [
                 {
-                    name: "Santa",
-                    surname: "Claus"
+                    n: "A",
+                    //surname: "Claus",
+                    //age: 99
                 }
             ]
         }
     ],
     invoice: {
-        owner: 1,
-        title: "Spare Toys co."
+        //owner: 1,
+        t: "B"
     }
 }
 
-const outputGrid = extractAsGrid(inputJson, "people.0.parents.0 > #, invoice > #")
+const outputGrid = extractAsGrid(inputJson,
+    "people.0.parents.0 > #, invoice > #; " +
+    "invoice > #, people.0.parents.0 > #; " +
+    "people.0.parents.0 > #, invoice > #; " +
+    "invoice > #, people.0.parents.0 > #"
+);
 
 console.log(outputGrid)

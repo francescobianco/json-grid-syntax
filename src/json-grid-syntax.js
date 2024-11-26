@@ -4,6 +4,10 @@ function jsonGridSyntax(inputJson, jsonGridSyntax, replacer = null, space = null
     function parseJson(inputJson, jsonGridSyntax) {
         jsonGridSyntax = jsonGridSyntax.trim();
 
+        if ([';', ','].includes(jsonGridSyntax[jsonGridSyntax.length - 1])) {
+            jsonGridSyntax = jsonGridSyntax.slice(0, -1).trim();
+        }
+
         if (!jsonGridSyntax) {
             return [[ stringifyJson(inputJson) ]];
         }
@@ -17,31 +21,56 @@ function jsonGridSyntax(inputJson, jsonGridSyntax, replacer = null, space = null
         let branchPrefix = ""
         let selectorGrid = getSelectorGrid(jsonGridSyntax);
         let columnOffset = 0;
+        let rowOffset = 0;
 
         selectorGrid = selectorGrid.map((row, rowIndex) => {
-            return row.map((selector, columnIndex) => {
-                let branch = getSelectorBranch(selector)
+            let maxHeight = 0;
 
-                if (branch) {
-                    selector = branch.selector
-                    branchPrefix = branch.prefix
+            row = row.map(
+                (selector, columnIndex) => {
+                    let branch = getSelectorBranch(selector)
+
+                    if (branch) {
+                        selector = branch.selector
+                        branchPrefix = branch.prefix
+                    }
+
+                    if (!selector) {
+                        return stringifyJson(getValueByPath(inputJson, branchPrefix));
+                    }
+
+                    if (selector[0] === '#') {
+                        expansionGrid = expandKeyValues(
+                            inputJson,
+                            expansionGrid,
+                            branchPrefix,
+                            columnIndex + columnOffset,
+                            rowIndex + rowOffset,
+                        );
+                        maxHeight = Math.max(maxHeight, expansionGrid.length);
+                        columnOffset++
+                        return
+                    } else if (selector[0] === '*') {
+                        expansionGrid = expandColumn(
+                            inputJson,
+                            expansionGrid,
+                            branchPrefix,
+                            selector,
+                            columnIndex + columnOffset,
+                            rowIndex + rowOffset
+                        );
+                        maxHeight = Math.max(maxHeight, expansionGrid.length - rowIndex);
+                        return
+                    }
+
+                    return stringifyJson(getValueByPath(inputJson, (branchPrefix ? branchPrefix + '.' : '') + selector))
                 }
+            );
 
-                if (!selector) {
-                    return stringifyJson(getValueByPath(inputJson, branchPrefix));
-                }
+            rowOffset = maxHeight - 1;
+            columnOffset = 0;
 
-                if (selector[0] === '#') {
-                    expansionGrid = expandKeyValues(getValueByPath(inputJson, branchPrefix), expansionGrid, columnIndex + columnOffset);
-                    columnOffset++
-                    return
-                } else if (selector[0] === '*') {
-                    expansionGrid = expandColumn(inputJson, expansionGrid, selector, branchPrefix, columnIndex);
-                    return
-                }
-
-                return stringifyJson(getValueByPath(inputJson, (branchPrefix ? branchPrefix + '.' : '') + selector))
-            })
+            return row;
         })
 
         return mergeGrids(selectorGrid, expansionGrid);
@@ -101,23 +130,37 @@ function jsonGridSyntax(inputJson, jsonGridSyntax, replacer = null, space = null
         return mergedGrid;
     }
 
+    function expandKeyValues(
+        inputJson,
+        expansionGrid = [[]],
+        branchPrefix = '',
+        columnIndex = 0,
+        rowIndex = 0
+    ) {
+        let index = rowIndex;
 
-    function expandKeyValues(inputJson, expansionGrid = [[]], columnIndex = 0) {
-        let index = 0;
+        const keyValues = getValueByPath(inputJson, branchPrefix);
 
-        for (let key in inputJson) {
+        for (let key in keyValues) {
             if (typeof expansionGrid[index] == "undefined") {
                 expansionGrid[index] = []
             }
             expansionGrid[index][columnIndex] = key;
-            expansionGrid[index][columnIndex + 1] = stringifyJson(inputJson[key]);
+            expansionGrid[index][columnIndex + 1] = stringifyJson(keyValues[key]);
             index++
         }
 
         return expansionGrid;
     }
 
-    function expandColumn(inputJson, expansionGrid, selector, branchPrefix, columnIndex) {
+    function expandColumn(
+        inputJson,
+        expansionGrid,
+        branchPrefix,
+        selector,
+        columnIndex,
+        rowIndex = 0
+    ) {
         const prefix = branchPrefix ? branchPrefix + '.' : '';
         const grid = getValueByPath(inputJson, branchPrefix);
 
