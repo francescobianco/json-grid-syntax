@@ -162,3 +162,8 @@ JGS was inspired by the need for simplicity in transforming JSON data into sprea
 ## 💬 Questions or Feedback?
 
 Feel free to open an issue or reach out to us. Contributions, suggestions, and feedback are always appreciated!
+
+## Similar projects
+
+- https://jsonquerylang.org/reference/
+
